@@ -46,6 +46,7 @@ CGUIDialogPVRChannelsOSD::CGUIDialogPVRChannelsOSD() :
     CGUIDialog(WINDOW_DIALOG_PVR_OSD_CHANNELS, "DialogPVRChannelsOSD.xml"),
     CPVRChannelNumberInputHandler(1000)
 {
+  m_loadType = LOAD_ON_GUI_INIT;
   m_vecItems = new CFileItemList;
 }
 
