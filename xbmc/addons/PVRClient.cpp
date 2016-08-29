@@ -28,7 +28,7 @@
 #include "ServiceBroker.h"
 #include "addons/kodi-addon-dev-kit/include/kodi/libKODI_guilib.h"
 #include "epg/Epg.h"
-#include "filesystem/SpecialProtocol.h"
+#include "epg/EpgInfoTag.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "utils/log.h"
@@ -347,6 +347,36 @@ void CPVRClient::WriteClientChannelInfo(const CPVRChannelPtr &xbmcChannel, PVR_C
   strncpy(addonChannel.strStreamURL, xbmcChannel->StreamURL().c_str(), sizeof(addonChannel.strStreamURL) - 1);
 }
 
+void CPVRClient::WriteEpgTag(const EPG::CConstEpgInfoTagPtr &tag, EPG_TAG &pvrTag)
+{
+  time_t t;
+  tag->StartAsUTC().GetAsTime(t);
+  pvrTag.startTime = t;
+  tag->EndAsUTC().GetAsTime(t);
+  pvrTag.endTime = t;
+  pvrTag.iParentalRating = tag->ParentalRating();
+  pvrTag.iUniqueBroadcastId = tag->UniqueBroadcastID();
+  pvrTag.bNotify = tag->Notify();
+  tag->FirstAiredAsUTC().GetAsTime(t);
+  pvrTag.firstAired = t;
+  pvrTag.iSeriesNumber = tag->SeriesNumber();
+  pvrTag.iEpisodeNumber = tag->EpisodeNumber();
+  pvrTag.iEpisodePartNumber = tag->EpisodePart();
+  pvrTag.iStarRating = tag->StarRating();
+  pvrTag.iYear = tag->Year();
+  pvrTag.iFlags = tag->Flags();
+  pvrTag.strTitle = tag->Title(true).c_str();
+  pvrTag.strPlotOutline = tag->PlotOutline().c_str();
+  pvrTag.strPlot = tag->Plot().c_str();
+  pvrTag.strOriginalTitle = tag->OriginalTitle(true).c_str();
+  pvrTag.strCast = tag->Cast().c_str();
+  pvrTag.strDirector = tag->Director().c_str();
+  pvrTag.strWriter = tag->Writer().c_str();
+  pvrTag.strIMDBNumber = tag->IMDBNumber().c_str();
+  pvrTag.strEpisodeName = tag->EpisodeName().c_str();
+  pvrTag.strIconPath = tag->Icon().c_str();
+}
+
 bool CPVRClient::IsCompatibleAPIVersion(const ADDON::AddonVersion &minVersion, const ADDON::AddonVersion &version)
 {
   AddonVersion myMinVersion = AddonVersion(XBMC_PVR_MIN_API_VERSION);
@@ -654,6 +684,30 @@ PVR_ERROR CPVRClient::RenameChannel(const CPVRChannelPtr &channel)
 
   PVR_ERROR retVal = m_struct.RenameChannel(addonChannel);
   LogError(retVal, __FUNCTION__);
+  return retVal;
+}
+
+PVR_ERROR CPVRClient::IsRecordable(const EPG::CConstEpgInfoTagPtr &tag, bool *isRecordable)
+{
+  if (!m_bReadyToUse)
+    return PVR_ERROR_SERVER_ERROR;
+
+  if (!m_addonCapabilities.bSupportsRecordings)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  PVR_ERROR retVal(PVR_ERROR_UNKNOWN);
+  try
+  {
+    EPG_TAG pvrTag;
+    WriteEpgTag(tag, pvrTag);
+    retVal = m_pStruct->IsRecordable(pvrTag, isRecordable);
+    LogError(retVal, __FUNCTION__);
+  }
+  catch (std::exception &e)
+  {
+    LogException(e, __FUNCTION__);
+  }
+
   return retVal;
 }
 

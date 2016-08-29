@@ -239,6 +239,11 @@ bool CEpgInfoTag::IsActive(void) const
   return (m_startTime <= now && m_endTime > now);
 }
 
+bool CEpgInfoTag::IsRecordable(void) const
+{
+  return g_PVRClients->IsRecordable(shared_from_this());
+}
+
 bool CEpgInfoTag::WasActive(void) const
 {
   CDateTime now = GetCurrentPlayingTime();

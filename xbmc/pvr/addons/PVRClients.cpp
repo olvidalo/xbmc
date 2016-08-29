@@ -30,6 +30,7 @@
 #include "messaging/ApplicationMessenger.h"
 #include "pvr/channels/PVRChannelGroupInternal.h"
 #include "pvr/channels/PVRChannelGroups.h"
+#include "epg/EpgInfoTag.h"
 #include "pvr/PVRJobs.h"
 #include "pvr/PVRManager.h"
 #include "pvr/recordings/PVRRecordings.h"
@@ -1284,6 +1285,21 @@ time_t CPVRClients::GetPlayingTime() const
   }
 
   return time;
+}
+
+bool CPVRClients::IsRecordable(const CConstEpgInfoTagPtr &tag) const
+{
+  PVR_CLIENT client;
+  bool isRecordable = false;
+
+  if (GetClient(tag->ChannelTag()->ClientID(), client))
+  {
+     if(client->IsRecordable(tag, &isRecordable) != PVR_ERROR_NO_ERROR) {
+       isRecordable = tag->EndAsLocalTime() > CDateTime::GetCurrentDateTime();
+     }
+  }
+
+  return isRecordable;
 }
 
 bool CPVRClients::IsTimeshifting(void) const

@@ -34,6 +34,16 @@
 class CVariant;
 class CFileItemList;
 
+namespace EPG
+{
+  class CEpg;
+  typedef std::shared_ptr<CEpg> CEpgPtr;
+  class CEpgInfoTag;
+  typedef std::shared_ptr<CEpgInfoTag> CEpgInfoTagPtr;
+  typedef std::shared_ptr<const CEpgInfoTag> CConstEpgInfoTagPtr;
+
+}
+
 namespace PVR
 {
   class CPVRDatabase;

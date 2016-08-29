@@ -789,9 +789,9 @@ CPVRTimerInfoTagPtr CPVRTimerInfoTag::CreateFromEpg(const CEpgInfoTagPtr &tag, b
   }
 
   /* check if the epg end date is in the future */
-  if (tag->EndAsLocalTime() < CDateTime::GetCurrentDateTime() && !bCreateRule)
+  if (!tag->IsRecordable() && !bCreateRule)
   {
-    CLog::Log(LOGERROR, "%s - end time is in the past", __FUNCTION__);
+    CLog::Log(LOGERROR, "%s - is not recordable", __FUNCTION__);
     return CPVRTimerInfoTagPtr();
   }
 
