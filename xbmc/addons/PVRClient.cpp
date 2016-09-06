@@ -742,6 +742,9 @@ const std::string CPVRClient::GetEpgTagUrl(const EPG::CConstEpgInfoTagPtr &tag)
     WriteEpgTag(tag, pvrTag);
     char url[4096];
     m_pStruct->GetEpgTagUrl(pvrTag, url, sizeof(url));
+    m_playingChannel = tag->ChannelTag();
+    m_bIsPlayingTV        = true;
+    m_bIsPlayingRecording = false;
     return url;
   }
   catch (std::exception &e)
