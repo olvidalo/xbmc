@@ -1249,6 +1249,8 @@ const std::string CPVRClients::GetEpgTagUrl(const CConstPVREpgInfoTagPtr &tag, c
 
   if (GetClient(tag->ChannelTag()->ClientID(), client))
   {
+    m_playingClientId = tag->ChannelTag()->ClientID();
+    m_bIsPlayingLiveTV = true;
     return client->GetEpgTagUrl(tag, properties);
   }
 
