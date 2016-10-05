@@ -244,6 +244,16 @@ bool CEpgInfoTag::IsRecordable(void) const
   return g_PVRClients->IsRecordable(shared_from_this());
 }
 
+bool CEpgInfoTag::IsPlayable(void) const
+{
+  return g_PVRClients->IsPlayable(shared_from_this());
+}
+
+const std::string CEpgInfoTag::GetStreamUrl(void) const
+{
+  return g_PVRClients->GetEpgTagUrl(shared_from_this());
+}
+
 bool CEpgInfoTag::WasActive(void) const
 {
   CDateTime now = GetCurrentPlayingTime();
@@ -516,6 +526,11 @@ std::string CEpgInfoTag::Icon(void) const
 std::string CEpgInfoTag::Path(void) const
 {
   return m_strFileNameAndPath;
+}
+
+void CEpgInfoTag::SetPath(const std::string &path)
+{
+  m_strFileNameAndPath = path;
 }
 
 bool CEpgInfoTag::HasTimer(void) const

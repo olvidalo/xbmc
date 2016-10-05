@@ -89,6 +89,16 @@ namespace EPG
      */
     bool IsRecordable(void) const;
 
+    /* @brief Check if this event can be played
+     * @return True if it can be played.
+     */
+    bool IsPlayable(void) const;
+
+    /* @brief Get the stream url for this event
+     * @return The stream url, empty string if playing is not possible
+     */
+    const std::string GetStreamUrl(void) const;
+
     /*!
      * @return True when this event has already passed, false otherwise.
      */
@@ -314,6 +324,12 @@ namespace EPG
      * @return The path.
      */
     std::string Path(void) const;
+
+    /*!
+     * @brief Set the path to this event.
+     * @param path The path
+     */
+    void SetPath(const std::string &path);
 
     /*!
      * @brief Set a timer for this event.

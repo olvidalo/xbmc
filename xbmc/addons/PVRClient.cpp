@@ -375,6 +375,7 @@ void CPVRClient::WriteEpgTag(const EPG::CConstEpgInfoTagPtr &tag, EPG_TAG &pvrTa
   pvrTag.strIMDBNumber = tag->IMDBNumber().c_str();
   pvrTag.strEpisodeName = tag->EpisodeName().c_str();
   pvrTag.strIconPath = tag->Icon().c_str();
+  pvrTag.iChannelNumber = tag->PVRChannelNumber();
 }
 
 bool CPVRClient::IsCompatibleAPIVersion(const ADDON::AddonVersion &minVersion, const ADDON::AddonVersion &version)
@@ -709,6 +710,46 @@ PVR_ERROR CPVRClient::IsRecordable(const EPG::CConstEpgInfoTagPtr &tag, bool *is
   }
 
   return retVal;
+}
+
+bool CPVRClient::IsPlayable(const EPG::CConstEpgInfoTagPtr &tag)
+{
+  if (!m_bReadyToUse)
+    return false;
+
+  try
+  {
+    EPG_TAG pvrTag;
+    WriteEpgTag(tag, pvrTag);
+    return m_pStruct->IsPlayable(pvrTag);
+  }
+  catch (std::exception &e)
+  {
+    LogException(e, __FUNCTION__);
+  }
+
+  return false;
+}
+
+const std::string CPVRClient::GetEpgTagUrl(const EPG::CConstEpgInfoTagPtr &tag)
+{
+  if (!m_bReadyToUse)
+    return nullptr;
+
+  try
+  {
+    EPG_TAG pvrTag;
+    WriteEpgTag(tag, pvrTag);
+    char url[4096];
+    m_pStruct->GetEpgTagUrl(pvrTag, url, sizeof(url));
+    return url;
+  }
+  catch (std::exception &e)
+  {
+    LogException(e, __FUNCTION__);
+  }
+
+  return "";
 }
 
 void CPVRClient::CallMenuHook(const PVR_MENUHOOK &hook, const CFileItem *item)

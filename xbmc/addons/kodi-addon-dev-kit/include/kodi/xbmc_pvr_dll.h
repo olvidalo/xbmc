@@ -586,6 +586,26 @@ extern "C"
    */
   PVR_ERROR IsRecordable(const EPG_TAG &tag, bool *isRecordable);
 
+  /*
+   * Check if the given EPG tag can be played.
+   * @param tag The EPG tag
+   * @return True if the EPG tag can be played
+   * @remarks Required, always return false if not supported by the addon
+   *
+   */
+  bool IsPlayable(const EPG_TAG &tag);
+
+  /*
+   * Get the URL to play a given EPG tag
+   * @param tag The EPG tag
+   * @param url The url to be returnd
+   * @param urlLen The length of the url buffer
+   * @return The length of the url. -1 if the tag is not playable
+   * @remarks Required, always return -1 if not supported by the addon
+   *
+   */
+  int GetEpgTagUrl(const EPG_TAG &tag, char *url, int urlLen);
+
   /*!
    * @brief Notify the pvr addon that XBMC (un)paused the currently playing stream
    */
@@ -741,6 +761,8 @@ extern "C"
     pClient->PositionRecordedStream         = PositionRecordedStream;
     pClient->LengthRecordedStream           = LengthRecordedStream;
     pClient->IsRecordable                   = IsRecordable;
+    pClient->IsPlayable                     = IsPlayable;
+    pClient->GetEpgTagUrl                   = GetEpgTagUrl;
 
     pClient->DemuxReset                     = DemuxReset;
     pClient->DemuxAbort                     = DemuxAbort;

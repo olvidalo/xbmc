@@ -50,7 +50,7 @@ using namespace KODI::MESSAGING;
 #define CONTROL_BTN_OK                  7
 #define CONTROL_BTN_PLAY_RECORDING      8
 #define CONTROL_BTN_ADD_TIMER           9
-#define CONTROL_BTN_CHANNEL_GUIDE       10
+#define CONTROL_BTN_PLAY_TAG            10
 
 CGUIDialogPVRGuideInfo::CGUIDialogPVRGuideInfo(void)
     : CGUIDialog(WINDOW_DIALOG_PVR_GUIDE_INFO, "DialogPVRInfo.xml")
@@ -155,15 +155,30 @@ bool CGUIDialogPVRGuideInfo::OnClickButtonPlay(CGUIMessage &message)
 {
   bool bReturn = false;
 
-  if (message.GetSenderId() == CONTROL_BTN_SWITCH || message.GetSenderId() == CONTROL_BTN_PLAY_RECORDING)
+  if (message.GetSenderId() == CONTROL_BTN_SWITCH || message.GetSenderId() == CONTROL_BTN_PLAY_RECORDING || message.GetSenderId() == CONTROL_BTN_PLAY_TAG)
   {
     Close();
 
-    const CFileItemPtr item(new CFileItem(m_progItem));
-    if (message.GetSenderId() == CONTROL_BTN_PLAY_RECORDING)
-      CServiceBroker::GetPVRManager().GUIActions()->PlayRecording(item, true /* bCheckResume */);
-    else
-      CServiceBroker::GetPVRManager().GUIActions()->SwitchToChannel(item, true /* bCheckResume */);
+    if (m_progItem)
+    {
+      if (message.GetSenderId() == CONTROL_BTN_PLAY_RECORDING && m_progItem->HasRecording())
+        g_application.PlayFile(CFileItem(m_progItem->Recording()), "videoplayer");
+      if (message.GetSenderId() == CONTROL_BTN_PLAY_TAG && m_progItem->IsPlayable()) {
+        CFileItem fileItem = CFileItem(m_progItem->ChannelTag());
+        fileItem.SetPath(m_progItem->GetStreamUrl());
+        g_application.PlayFile(fileItem, "videoplayer");
+      }
+      else if (m_progItem->HasPVRChannel())
+      {
+        CPVRChannelPtr channel = m_progItem->ChannelTag();
+        // try a fast switch
+        bool bSwitchSuccessful = false;
+        if ((g_PVRManager.IsPlayingTV() || g_PVRManager.IsPlayingRadio()) &&
+            (channel->IsRadio() == g_PVRManager.IsPlayingRadio()))
+        {
+          if (channel->StreamURL().empty())
+            bSwitchSuccessful = g_application.m_pPlayer->SwitchChannel(channel);
+        }
 
     bReturn = true;
   }
@@ -227,6 +242,10 @@ void CGUIDialogPVRGuideInfo::OnInitWindow()
   {
     /* not recording. hide the play recording button */
     SET_CONTROL_HIDDEN(CONTROL_BTN_PLAY_RECORDING);
+  }
+
+  if (!m_progItem->IsPlayable()) {
+    SET_CONTROL_HIDDEN(CONTROL_BTN_PLAY_TAG);
   }
 
   bool bHideRecord(true);
