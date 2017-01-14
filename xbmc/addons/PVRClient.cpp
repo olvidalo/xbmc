@@ -375,7 +375,7 @@ void CPVRClient::WriteEpgTag(const EPG::CConstEpgInfoTagPtr &tag, EPG_TAG &pvrTa
   pvrTag.strIMDBNumber = tag->IMDBNumber().c_str();
   pvrTag.strEpisodeName = tag->EpisodeName().c_str();
   pvrTag.strIconPath = tag->Icon().c_str();
-  pvrTag.iChannelNumber = tag->PVRChannelNumber();
+  pvrTag.iChannelNumber = tag->ChannelTag()->ClientChannelNumber();
 }
 
 bool CPVRClient::IsCompatibleAPIVersion(const ADDON::AddonVersion &minVersion, const ADDON::AddonVersion &version)
