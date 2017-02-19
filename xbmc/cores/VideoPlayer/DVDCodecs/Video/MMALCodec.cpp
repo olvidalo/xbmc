@@ -752,7 +752,9 @@ int CMMALVideo::GetPicture(DVDVideoPicture* pDvdVideoPicture)
     m_pool->Prime();
 
   // we don't get an EOS response if no packets have been sent
-  if (m_packet_num == 0 && send_eos)
+  if (!drain)
+    m_got_eos = false;
+  else if (m_packet_num == 0 && send_eos)
     m_got_eos = true;
 
   if (send_eos && !m_got_eos)
