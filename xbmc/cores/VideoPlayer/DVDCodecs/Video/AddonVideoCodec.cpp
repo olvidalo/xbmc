@@ -243,6 +243,7 @@ CDVDVideoCodec::VCReturn CAddonVideoCodec::GetPicture(DVDVideoPicture* pDvdVideo
     if (g_advancedSettings.CanLogComponent(LOGVIDEO))
       CLog::Log(LOGDEBUG, "CAddonVideoCodec: GetPicture::VC_PICTURE with pts %llu", picture.pts);
 
+    m_bufferPool->Finalise(pDvdVideoPicture);
     m_bufferPool->ReleaseMemoryPointer(m_lastPictureBuffer);
     m_lastPictureBuffer = picture.decodedData;
 

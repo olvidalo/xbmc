@@ -53,4 +53,9 @@ public:
   * Release a block of memory
   */
   virtual void ReleaseNativeMemoryHandle(int64_t mem) {};
+
+  /**
+  * Finalise a block of memory
+  */
+  virtual void Finalise(void *mem) {}
 };
