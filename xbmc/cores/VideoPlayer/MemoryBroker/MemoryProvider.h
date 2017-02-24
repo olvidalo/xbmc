@@ -55,7 +55,7 @@ public:
   virtual void ReleaseNativeMemoryHandle(int64_t mem) {};
 
   /**
-  * Finalise a block of memory
+  * Finalise a picture buffer (e.g. flush caches)
   */
-  virtual void Finalise(void *mem) {}
+  virtual void Finalise(void* picture) {}
 };

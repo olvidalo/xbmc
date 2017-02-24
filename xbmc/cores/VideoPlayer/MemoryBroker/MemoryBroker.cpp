@@ -19,6 +19,7 @@
  */
 
 #include "MemoryProviderMalloc.h"
+#include "MemoryProviderPi.h"
 #include "MemoryBroker.h"
 
 #include <algorithm>
@@ -34,7 +35,11 @@ CMemoryBroker::~CMemoryBroker()
 void CMemoryBroker::Init()
 {
   // Add the built in memory provider
+#ifdef TARGET_RASPBERRY_PI
+  memoryProvider.insert(std::shared_ptr<CMemoryProviderPi>(new CMemoryProviderPi()));
+#else
   memoryProvider.insert(std::shared_ptr<CMemoryProviderMalloc>(new CMemoryProviderMalloc()));
+#endif
 }
 
 void CMemoryBroker::RegisterProvider(std::shared_ptr<CMemoryProvider> provider)

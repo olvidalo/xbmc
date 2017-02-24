@@ -149,7 +149,7 @@ bool CAddonVideoCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
 
   unsigned int nformats(0);
   for (auto fmt : options.m_formats)
-    if (fmt == RENDER_FMT_YUV420P)
+    if (fmt == RENDER_FMT_YUV420P || fmt == RENDER_FMT_MMAL)
     {
       m_formats[nformats++] = VideoFormatYV12;
       break;
