@@ -23,6 +23,7 @@
 #include "cores/VideoPlayer/DVDDemuxers/DemuxCrypto.h"
 #include "cores/VideoPlayer/DVDCodecs/DVDCodecs.h"
 #include "cores/VideoPlayer/TimingConstants.h"
+#include "cores/VideoPlayer/MemoryBroker/MemoryBroker.h"
 #include "utils/log.h"
 #include "settings/AdvancedSettings.h"
 
@@ -30,70 +31,12 @@ using namespace kodi::addon;
 
 #define ALIGN(value, alignment) (((value)+(alignment-1))&~(alignment-1))
 
-class BufferPool
-{
-public:
-  ~BufferPool()
-  {
-    for (BUFFER &buf : freeBuffer)
-      free(buf.mem);
-    for (BUFFER &buf : usedBuffer)
-      free(buf.mem);
-  }
-
-  bool GetBuffer(VIDEOCODEC_PICTURE &picture)
-  {
-    if (freeBuffer.empty())
-      freeBuffer.resize(1);
-
-    BUFFER &buf(freeBuffer.back());
-    if (buf.memSize < picture.decodedDataSize)
-    {
-      buf.memSize = picture.decodedDataSize;
-      buf.mem = malloc(buf.memSize);
-      if (buf.mem == nullptr)
-      {
-        buf.memSize = 0;
-        picture.decodedData = nullptr;
-        return false;
-      }
-    }
-    picture.decodedData = (uint8_t*)buf.mem;
-
-    usedBuffer.push_back(buf);
-    freeBuffer.pop_back();
-    return true;
-  }
-
-  void ReleaseBuffer(void *bufferPtr)
-  {
-    std::vector<BUFFER>::iterator res(std::find(usedBuffer.begin(), usedBuffer.end(), bufferPtr));
-    if (res == usedBuffer.end())
-      return;
-    freeBuffer.push_back(*res);
-    usedBuffer.erase(res);
-  }
-private:
-  struct BUFFER
-  {
-    BUFFER():mem(nullptr), memSize(0) {};
-    BUFFER(void* m, size_t s) :mem(m), memSize(s) {};
-    bool operator == (const void* data) const { return mem == data; };
-
-    void *mem;
-    size_t memSize;
-  };
-  std::vector<BUFFER> freeBuffer, usedBuffer;
-};
-
 CAddonVideoCodec::CAddonVideoCodec(CProcessInfo &processInfo, ADDON::AddonInfoPtr& addonInfo, kodi::addon::IAddonInstance* parentInstance)
   : CDVDVideoCodec(processInfo),
     IAddonInstanceHandler(ADDON::ADDON_VIDEOCODEC, addonInfo, parentInstance)
   , m_displayAspect(0.0f)
   , m_codecFlags(0)
   , m_lastPictureBuffer(nullptr)
-  , m_bufferPool(new BufferPool())
-
 {
   memset(&m_struct, 0, sizeof(m_struct));
   m_struct.toKodi.kodiInstance = this;
@@ -111,9 +54,8 @@ CAddonVideoCodec::~CAddonVideoCodec()
 {
   DestroyInstance();
 
-  m_bufferPool->ReleaseBuffer(m_lastPictureBuffer);
-
-  delete m_bufferPool;
+  if (m_bufferPool)
+    m_bufferPool->ReleaseMemoryPointer(m_lastPictureBuffer);
 }
 
 bool CAddonVideoCodec::CopyToInitData(VIDEOCODEC_INITDATA &initData, CDVDStreamInfo &hints)
@@ -216,6 +158,11 @@ bool CAddonVideoCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   if (nformats == 0)
     return false;
 
+  m_bufferPool = CMemoryBroker::getInstance().AquireMemoryProvider(options);
+
+  if (!m_bufferPool)
+    return false;
+
   VIDEOCODEC_INITDATA initData;
   if (!CopyToInitData(initData, hints))
     return false;
@@ -295,7 +242,7 @@ CDVDVideoCodec::VCReturn CAddonVideoCodec::GetPicture(DVDVideoPicture* pDvdVideo
     if (g_advancedSettings.CanLogComponent(LOGVIDEO))
       CLog::Log(LOGDEBUG, "CAddonVideoCodec: GetPicture::VC_PICTURE with pts %llu", picture.pts);
 
-    m_bufferPool->ReleaseBuffer(m_lastPictureBuffer);
+    m_bufferPool->ReleaseMemoryPointer(m_lastPictureBuffer);
     m_lastPictureBuffer = picture.decodedData;
 
     if (picture.width != m_width || picture.height != m_height)
@@ -336,11 +283,11 @@ void CAddonVideoCodec::Reset()
   {
     if (ret == VIDEOCODEC_RETVAL::VC_PICTURE)
     {
-      m_bufferPool->ReleaseBuffer(m_lastPictureBuffer);
+      m_bufferPool->ReleaseMemoryPointer(m_lastPictureBuffer);
       m_lastPictureBuffer = picture.decodedData;
     }
   }
-  m_bufferPool->ReleaseBuffer(m_lastPictureBuffer);
+  m_bufferPool->ReleaseMemoryPointer(m_lastPictureBuffer);
   m_lastPictureBuffer = nullptr;
 
   m_struct.toAddon.Reset(m_addonInstance);
@@ -348,7 +295,8 @@ void CAddonVideoCodec::Reset()
 
 bool CAddonVideoCodec::GetFrameBuffer(VIDEOCODEC_PICTURE &picture)
 {
-  return m_bufferPool->GetBuffer(picture);
+  picture.decodedData = static_cast<uint8_t*>(m_bufferPool->GetMemoryPointer(picture.decodedDataSize));
+  return picture.decodedData != nullptr;
 }
 
 /*********************     ADDON-TO-KODI    **********************/

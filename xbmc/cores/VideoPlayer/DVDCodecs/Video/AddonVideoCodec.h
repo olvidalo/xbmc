@@ -23,7 +23,7 @@
 #include "addons/AddonDll.h"
 #include "addons/kodi-addon-dev-kit/include/kodi/addon-instance/VideoCodec.h"
 
-class BufferPool;
+class CMemoryProvider;
 
 class CAddonVideoCodec
   : public CDVDVideoCodec
@@ -62,5 +62,5 @@ private:
 
   void * m_lastPictureBuffer;
 
-  BufferPool *m_bufferPool;
+  std::shared_ptr<CMemoryProvider> m_bufferPool;
 };
