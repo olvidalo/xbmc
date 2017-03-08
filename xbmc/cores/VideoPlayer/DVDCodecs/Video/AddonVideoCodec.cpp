@@ -24,6 +24,7 @@
 #include "cores/VideoPlayer/DVDCodecs/DVDCodecs.h"
 #include "cores/VideoPlayer/TimingConstants.h"
 #include "cores/VideoPlayer/MemoryBroker/MemoryBroker.h"
+#include "ServiceBroker.h"
 #include "utils/log.h"
 #include "settings/AdvancedSettings.h"
 
@@ -158,7 +159,7 @@ bool CAddonVideoCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   if (nformats == 0)
     return false;
 
-  m_bufferPool = CMemoryBroker::getInstance().AquireMemoryProvider(options);
+  m_bufferPool = CServiceBroker::GetMemoryBroker().AquireMemoryProvider(options);
 
   if (!m_bufferPool)
     return false;

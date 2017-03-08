@@ -92,3 +92,8 @@ bool CServiceBroker::IsBinaryAddonCacheUp()
 {
   return g_application.m_ServiceManager->init_level > 1;
 }
+
+CMemoryBroker &CServiceBroker::GetMemoryBroker()
+{
+	return g_application.m_ServiceManager->GetMemoryBroker();
+}

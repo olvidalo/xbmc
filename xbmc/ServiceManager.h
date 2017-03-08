@@ -56,6 +56,7 @@ class XBPython;
 class CDataCacheCore;
 class CSettings;
 class IAE;
+class CMemoryBroker;
 
 namespace GAME
 {
@@ -97,6 +98,8 @@ public:
 
   CSettings& GetSettings();
 
+  CMemoryBroker& GetMemoryBroker();
+
 protected:
   struct delete_dataCacheCore
   {
@@ -129,4 +132,5 @@ protected:
   std::unique_ptr<PLAYLIST::CPlayListPlayer> m_playlistPlayer;
   std::unique_ptr<CSettings> m_settings;
   std::unique_ptr<GAME::CGameServices> m_gameServices;
+  std::unique_ptr<CMemoryBroker> m_memoryBroker;
 };

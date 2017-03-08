@@ -33,6 +33,7 @@
 #include "pvr/PVRManager.h"
 #include "cores/AudioEngine/Engines/ActiveAE/ActiveAE.h"
 #include "settings/Settings.h"
+#include "cores/VideoPlayer/MemoryBroker/MemoryBroker.h"
 
 CServiceManager::CServiceManager() :
   m_gameServices(new GAME::CGameServices)
@@ -86,6 +87,8 @@ bool CServiceManager::Init2()
 
   m_contextMenuManager.reset(new CContextMenuManager(*m_addonMgr.get()));
 
+  m_memoryBroker.reset(new CMemoryBroker());
+
   init_level = 2;
   return true;
 }
@@ -125,7 +128,7 @@ bool CServiceManager::Init3()
   m_PVRManager->Init();
   m_contextMenuManager->Init();
   m_gameServices->Init();
-
+  m_memoryBroker->Init();
   init_level = 3;
   return true;
 }
@@ -146,6 +149,7 @@ void CServiceManager::Deinit()
   m_XBPython.reset();
 #endif
   m_announcementManager.reset();
+  m_memoryBroker.reset();
   init_level = 0;
 }
 
@@ -220,6 +224,11 @@ CSettings& CServiceManager::GetSettings()
 GAME::CGameServices& CServiceManager::GetGameServices()
 {
   return *m_gameServices;
+}
+
+CMemoryBroker& CServiceManager::GetMemoryBroker()
+{
+  return *m_memoryBroker;
 }
 
 // deleters for unique_ptr

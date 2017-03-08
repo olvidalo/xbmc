@@ -28,8 +28,13 @@ class CDVDCodecOptions;
 class CMemoryBroker
 {
 public:
-  static CMemoryBroker &getInstance();
+  CMemoryBroker();
   virtual ~CMemoryBroker();
+
+  /**
+  * Called from ServiceManager Init step.
+  */
+  void Init();
 
   /**
   * Registeres a new provider
@@ -46,6 +51,5 @@ public:
   */
   std::shared_ptr<CMemoryProvider> AquireMemoryProvider(const CDVDCodecOptions &options);
 private:
-  CMemoryBroker();
   std::set<std::shared_ptr<CMemoryProvider> > memoryProvider;
 };

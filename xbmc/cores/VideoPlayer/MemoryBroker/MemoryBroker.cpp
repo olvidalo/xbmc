@@ -23,20 +23,18 @@
 
 #include <algorithm>
 
-CMemoryBroker &CMemoryBroker::getInstance()
-{
-  static CMemoryBroker instance;
-  return instance;
-}
-
 CMemoryBroker::CMemoryBroker()
 {
-  // Add the built in memory provider
-  memoryProvider.insert(std::shared_ptr<CMemoryProviderMalloc>(new CMemoryProviderMalloc()));
 }
 
 CMemoryBroker::~CMemoryBroker()
 {
+}
+
+void CMemoryBroker::Init()
+{
+  // Add the built in memory provider
+  memoryProvider.insert(std::shared_ptr<CMemoryProviderMalloc>(new CMemoryProviderMalloc()));
 }
 
 void CMemoryBroker::RegisterProvider(std::shared_ptr<CMemoryProvider> provider)

@@ -50,6 +50,7 @@ class XBPython;
 class CDataCacheCore;
 class CSettings;
 class IAE;
+class CMemoryBroker;
 
 namespace GAME
 {
@@ -73,4 +74,5 @@ public:
   static CSettings& GetSettings();
   static GAME::CGameServices& GetGameServices();
   static bool IsBinaryAddonCacheUp();
+  static CMemoryBroker &GetMemoryBroker();
 };
