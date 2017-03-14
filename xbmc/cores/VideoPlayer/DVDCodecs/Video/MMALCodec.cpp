@@ -76,7 +76,11 @@ CMMALVideoBuffer::CMMALVideoBuffer(CMMALVideo *omv, std::shared_ptr<CMMALPool> p
 CMMALVideoBuffer::~CMMALVideoBuffer()
 {
   if (mmal_buffer)
+  {
     mmal_buffer_header_release(mmal_buffer);
+    if (m_pool)
+      m_pool->Prime();
+  }
   if (VERBOSE && g_advancedSettings.CanLogComponent(LOGVIDEO))
     CLog::Log(LOGDEBUG, "%s::%s %p", CLASSNAME, __func__, this);
 }
@@ -624,8 +628,6 @@ int CMMALVideo::AddData(uint8_t* pData, int iSize, double dts, double pts)
   MMAL_STATUS_T status;
   assert(pData != nullptr && iSize > 0); // no longer valid
 
-  if (m_pool)
-    m_pool->Prime();
   while (iSize > 0)
   {
     // 500ms timeout
@@ -747,9 +749,6 @@ int CMMALVideo::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   MMAL_STATUS_T status;
   bool drain = (m_codecControlFlags & DVD_CODEC_CTRL_DRAIN) ? true : false;
   bool send_eos = drain && !m_got_eos && m_packet_num_eos != m_packet_num;
-
-  if (m_pool)
-    m_pool->Prime();
 
   // we don't get an EOS response if no packets have been sent
   if (!drain)
