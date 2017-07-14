@@ -95,7 +95,9 @@ bool CPixelConverterRBP::Open(AVPixelFormat pixfmt, AVPixelFormat targetfmt, uns
   }
 
   m_pixelBufferPool->Configure(m_targetFormat, 0);
-  m_pixelBufferPool->SetDimensions(width, height, width, height);
+  const int (&strides)[YuvImage::MAX_PLANES] = {};
+  const int (&planeOffsets)[YuvImage::MAX_PLANES] = {};
+  m_pixelBufferPool->SetDimensions(width, height, strides, planeOffsets);
 
   return true;
 }
