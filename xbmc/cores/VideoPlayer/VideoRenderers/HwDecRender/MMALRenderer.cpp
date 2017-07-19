@@ -247,8 +247,8 @@ void CMMALPool::Configure(AVPixelFormat format, int width, int height, int align
       }
       if (alignedHeight)
       {
-        m_geo.height_y = alignedHeight * m_geo.bytes_per_pixel;
-        m_geo.height_c = alignedHeight * m_geo.bytes_per_pixel >> 1;
+        m_geo.height_y = alignedHeight;
+        m_geo.height_c = alignedHeight >> 1;
       }
     }
   }
