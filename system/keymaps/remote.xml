@@ -196,7 +196,7 @@
       <select>OSD</select>
       <title>PlayerProcessInfo</title>
       <info>Info</info>
-      <guide>ActivateWindow(PVRChannelGuide)</guide>
+      <guide>ActivateWindow(TVGuide)</guide>
       <teletext>ActivateWindow(Teletext)</teletext>
       <subtitle>NextSubtitle</subtitle>
       <star>NextSubtitle</star>

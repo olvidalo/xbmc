@@ -1,0 +1,1 @@
+inputstream.adaptive https://github.com/rbuehlma/inputstream.adaptive zattoo_dash
